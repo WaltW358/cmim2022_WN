@@ -25,4 +25,4 @@ sys = add_joint_simple(sys, "block", "fi", -deg2rad(30));
 %% POSTPROCESSING
 % checking with analytical solution
 % plot(T, Q(5, :), T, 0.05 + 0.5 .* T .^ 2 * sys.gravity(2), '--', 'LineWidth', 2)
-plot(T, Qd(6, :))
+plot(T, Qd(5, :))

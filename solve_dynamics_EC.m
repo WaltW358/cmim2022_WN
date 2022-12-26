@@ -18,17 +18,28 @@ f = forces(sys);
 
 % Here put proper code for g vector. But for simple constraints this is
 % accurate
-g = zeros(nC, 1);
+% g = zeros(length(nC), 1);
+% 
+% for n =1:length(sys.bodies)
+%     g(n) = sys.forces.external(n).F;
+% 
+% end
+    %g = [0,0,0,0,-100,0,-100,0]';
+    g = [0,0,0,0,-100,0,0,0]';
+
+
+
 
     function qdd = accfun(q, qd, t)
         Cq = constraints_dq(sys, q);
         A = [M, Cq'
-            Cq, zeros(nC)];
-        b = [f;
-            g];
+            Cq, zeros(2,2)];
+        b = [g];
         qdd_lambda = A \ b;
         qdd = qdd_lambda(1:end - nC);
     end
+
+%[t,y] = ode45(accfun,[0, sys.solver.t_final],q0);
 
 [T, Q, Qd] = odeEulerCromer(@accfun, q0, qd0, ...
     sys.solver.t_step, sys.solver.t_final);
