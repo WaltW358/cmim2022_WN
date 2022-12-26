@@ -4,7 +4,7 @@ function sys = add_force_single(sys,body, F, location)
     arguments
         sys (1,1) struct
         body (1,1) string
-        F (1,1) = 0;
+        F (3,1) = [0;0;0];
         location (2,1) double = [0;0];
     end
     check_body_exists(sys, body)

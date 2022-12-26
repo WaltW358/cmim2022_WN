@@ -1,4 +1,4 @@
-function [T, Q, Qd] = solve_dynamics_EC(sys)
+function [T, Q,Qd] = wn_solve_dynamics_EC(sys)
 %SOLVE_DYNAMICS_EC_NO_CONSTRAINTS Solve the multibody system sys on
 %dynamics using Euler-Cromer integration scheme and assuming that there can
 %be only simple constraints!!!
@@ -14,21 +14,31 @@ if norm(C) > 1e-12
 end
 
 M = mass_matrix(sys);
-f = forces(sys);
+%f = forces(sys);
 
 % Here put proper code for g vector. But for simple constraints this is
 % accurate
-g = zeros(nC, 1);
+ %g = zeros(length(nC), 1);
+ f(sys.forces.external.body_i_qidx) = sys.forces.external.F;
+ imp = length(M)+nC-length(f); % Variable to create the zeros for A matrix
 
-    function qdd = accfun(q, qd, t)
+    %g = [0,0,0,0,-100,0,-100,-100]';
+    %g = [0,0,0,0,-100,0,0,0]';
+%g = zeros(imp,1);
+g = rot(sys.bodies(2).orientation)*[sys.forces.external.F(1,1);sys.forces.external.F(2,1)];
+
+
+
+    function qdd = accfun(q,dq,t)
         Cq = constraints_dq(sys, q);
         A = [M, Cq'
-            Cq, zeros(nC)];
-        b = [f;
-            g];
+            Cq, zeros(imp)];
+        b = [f';g];
         qdd_lambda = A \ b;
         qdd = qdd_lambda(1:end - nC);
     end
+% [T,Q] = ode15i(accfun,[0,10],q0,qd0);
+%[T,Q] = ode45(accfun(q0),[0, sys.solver.t_final],q0);
 
 [T, Q, Qd] = odeEulerCromer(@accfun, q0, qd0, ...
     sys.solver.t_step, sys.solver.t_final);
